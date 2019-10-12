@@ -1,0 +1,67 @@
+2019-10-12 23:47:03,249 0      [           main] INFO                     MyBatisTest  - 读取配置文件
+2019-10-12 23:47:03,401 152    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:03,402 153    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:03,449 200    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:03,449 200    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:04,257 1008   [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:04,258 1009   [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:04,305 1056   [           main] INFO                     MyBatisTest  - 创建SqlSessionFactory工厂
+2019-10-12 23:47:04,309 1060   [           main] INFO                     MyBatisTest  - 工厂生产SqlSession对象
+2019-10-12 23:47:04,312 1063   [           main] INFO                     MyBatisTest  - SqlSession创建Dao接口的代理对象
+2019-10-12 23:47:04,331 1082   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Opening JDBC Connection
+2019-10-12 23:47:04,910 1661   [           main] DEBUG source.pooled.PooledDataSource  - Created connection 937744315.
+2019-10-12 23:47:04,911 1662   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@37e4d7bb]
+2019-10-12 23:47:04,915 1666   [           main] DEBUG jacker.dao.IUserDao.findByName  - ==>  Preparing: select * from user where username like ? 
+2019-10-12 23:47:04,946 1697   [           main] DEBUG jacker.dao.IUserDao.findByName  - ==> Parameters: %王%(String)
+2019-10-12 23:47:04,983 1734   [           main] DEBUG jacker.dao.IUserDao.findByName  - <==      Total: 6
+2019-10-12 23:47:04,986 1737   [           main] INFO                     MyBatisTest  - SqlSession提交事务
+2019-10-12 23:47:04,987 1738   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Resetting autocommit to true on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@37e4d7bb]
+2019-10-12 23:47:04,987 1738   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Closing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@37e4d7bb]
+2019-10-12 23:47:04,987 1738   [           main] DEBUG source.pooled.PooledDataSource  - Returned connection 937744315 to pool.
+2019-10-12 23:47:04,988 1739   [           main] INFO                     MyBatisTest  - 释放资源
+2019-10-12 23:47:18,102 0      [           main] INFO                     MyBatisTest  - 读取配置文件
+2019-10-12 23:47:18,246 144    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:18,247 145    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:18,269 167    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:18,269 167    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:18,269 167    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:18,269 167    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:18,320 218    [           main] INFO                     MyBatisTest  - 创建SqlSessionFactory工厂
+2019-10-12 23:47:18,327 225    [           main] INFO                     MyBatisTest  - 工厂生产SqlSession对象
+2019-10-12 23:47:18,329 227    [           main] INFO                     MyBatisTest  - SqlSession创建Dao接口的代理对象
+2019-10-12 23:47:18,340 238    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Opening JDBC Connection
+2019-10-12 23:47:19,007 905    [           main] DEBUG source.pooled.PooledDataSource  - Created connection 1508181426.
+2019-10-12 23:47:19,007 905    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@59e505b2]
+2019-10-12 23:47:19,011 909    [           main] DEBUG ajacker.dao.IUserDao.findTotal  - ==>  Preparing: select count(id) from user 
+2019-10-12 23:47:19,054 952    [           main] DEBUG ajacker.dao.IUserDao.findTotal  - ==> Parameters: 
+2019-10-12 23:47:19,095 993    [           main] DEBUG ajacker.dao.IUserDao.findTotal  - <==      Total: 1
+2019-10-12 23:47:19,098 996    [           main] INFO                     MyBatisTest  - SqlSession提交事务
+2019-10-12 23:47:19,098 996    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Resetting autocommit to true on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@59e505b2]
+2019-10-12 23:47:19,099 997    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Closing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@59e505b2]
+2019-10-12 23:47:19,099 997    [           main] DEBUG source.pooled.PooledDataSource  - Returned connection 1508181426 to pool.
+2019-10-12 23:47:19,099 997    [           main] INFO                     MyBatisTest  - 释放资源
+2019-10-12 23:47:31,582 0      [           main] INFO                     MyBatisTest  - 读取配置文件
+2019-10-12 23:47:31,732 150    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:31,732 150    [           main] DEBUG ache.ibatis.logging.LogFactory  - Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+2019-10-12 23:47:31,767 185    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:31,767 185    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:31,767 185    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:31,767 185    [           main] DEBUG source.pooled.PooledDataSource  - PooledDataSource forcefully closed/removed all connections.
+2019-10-12 23:47:31,822 240    [           main] INFO                     MyBatisTest  - 创建SqlSessionFactory工厂
+2019-10-12 23:47:31,827 245    [           main] INFO                     MyBatisTest  - 工厂生产SqlSession对象
+2019-10-12 23:47:31,829 247    [           main] INFO                     MyBatisTest  - SqlSession创建Dao接口的代理对象
+2019-10-12 23:47:31,849 267    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Opening JDBC Connection
+2019-10-12 23:47:32,508 926    [           main] DEBUG source.pooled.PooledDataSource  - Created connection 1667305539.
+2019-10-12 23:47:32,508 926    [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@63611043]
+2019-10-12 23:47:32,513 931    [           main] DEBUG .ajacker.dao.IUserDao.saveUser  - ==>  Preparing: insert into user(username, address, sex, birthday) values(?,?,?,?) 
+2019-10-12 23:47:32,564 982    [           main] DEBUG .ajacker.dao.IUserDao.saveUser  - ==> Parameters: 王二狗(String), 太原(String), 女(String), 2019-10-12 23:47:31.83(Timestamp)
+2019-10-12 23:47:32,572 990    [           main] DEBUG .ajacker.dao.IUserDao.saveUser  - <==    Updates: 1
+2019-10-12 23:47:32,574 992    [           main] DEBUG ao.IUserDao.saveUser!selectKey  - ==>  Preparing: select last_insert_id() 
+2019-10-12 23:47:32,574 992    [           main] DEBUG ao.IUserDao.saveUser!selectKey  - ==> Parameters: 
+2019-10-12 23:47:32,608 1026   [           main] DEBUG ao.IUserDao.saveUser!selectKey  - <==      Total: 1
+2019-10-12 23:47:32,611 1029   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Committing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@63611043]
+2019-10-12 23:47:32,614 1032   [           main] INFO                     MyBatisTest  - SqlSession提交事务
+2019-10-12 23:47:32,614 1032   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Resetting autocommit to true on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@63611043]
+2019-10-12 23:47:32,615 1033   [           main] DEBUG ansaction.jdbc.JdbcTransaction  - Closing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@63611043]
+2019-10-12 23:47:32,615 1033   [           main] DEBUG source.pooled.PooledDataSource  - Returned connection 1667305539 to pool.
+2019-10-12 23:47:32,615 1033   [           main] INFO                     MyBatisTest  - 释放资源

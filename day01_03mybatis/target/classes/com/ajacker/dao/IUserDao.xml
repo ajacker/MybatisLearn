@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ajacker.dao.IUserDao">
+
+    <!--结果集映射-->
+    <resultMap id="userMap" type="user">
+        <result property="userId" column="id"/>
+        <result property="birthday" column="birthday"/>
+        <result property="username" column="username"/>
+        <result property="address" column="address"/>
+        <result property="sex" column="sex"/>
+    </resultMap>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>
