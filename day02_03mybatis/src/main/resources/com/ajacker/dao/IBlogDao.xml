@@ -49,4 +49,15 @@
         </set>
         where id = #{id}
     </update>
+
+
+    <select id="queryBlogForeach" resultType="blog">
+        select * from blog
+        <where>
+            <foreach collection="ids" item="id"
+                     open="and (" separator="or" close=")">
+                id = #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>

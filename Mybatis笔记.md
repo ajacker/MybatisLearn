@@ -1908,4 +1908,126 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
   </trim>
   ```
 
-  
+### 12.5、sql和include
+
+在之前我们的代码中有许多相同的片段：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ajacker.dao.IBlogDao">
+    <select id="queryBlogIf" resultType="blog">
+        select * from blog
+        <where>
+            <if test="title != null">
+                and title = #{title}
+            </if>
+            <if test="author != null">
+                and author = #{author}
+            </if>
+        </where>
+    </select>
+    
+    <update id="updateBlog">
+        update blog
+        <set>
+            <if test="title != null">
+                title=#{title},
+            </if>
+            <if test="author != null">
+                author=#{author}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
+```
+
+我们可以通过`sql`标签包含一个代码片段，之后通过`include`标签复用它，就像这样
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ajacker.dao.IBlogDao">
+    <sql id="if-title-author">
+        <if test="title != null">
+            and title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </sql>
+
+    <select id="queryBlogIf" resultType="blog">
+        select * from blog
+        <where>
+            <include refid="if-title-author"/>
+        </where>
+    </select>
+
+    <update id="updateBlog">
+        update blog
+        <set>
+            <include refid="if-title-author"/>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
+```
+
+### 12.6、foreach
+
+1. 添加接口方法
+
+   ```java
+   /**
+    * 查询指定id的所有博客
+    * @param ids 一个list存要查询的id
+    * @return 查询结果
+    */
+   List<Blog> queryBlogForeach(@Param("ids") List<Integer> ids);
+   ```
+
+2. 在mapper中编写sql语句
+
+   ```xml
+   <select id="queryBlogForeach" resultType="blog">
+       select * from blog
+       <where>
+           <foreach collection="ids" item="id"
+                    open="and (" separator="or" close=")">
+               id = #{id}
+           </foreach>
+       </where>
+   </select>
+   ```
+
+3. 编写测试方法
+
+   ```java
+   @Test
+   public void testQueryBlogForeach() throws Exception {
+       IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
+       List<Integer> ids = Arrays.asList(1,3);
+       List<Blog> blogs = blogDao.queryBlogForeach(ids);
+       blogs.forEach(System.out::println);
+   }
+   ```
+
+4. 查看运行结果
+
+   ```java
+   [main] DEBUG .dao.IBlogDao.queryBlogForeach  - ==>  Preparing: select * from blog WHERE ( id = ? or id = ? or id = ? ) 
+   [main] DEBUG .dao.IBlogDao.queryBlogForeach  - ==> Parameters: 1(Integer), 2(Integer), 3(Integer)
+   [main] DEBUG .dao.IBlogDao.queryBlogForeach  - <==      Total: 3
+   Blog{id=1, title='啦啦啦博客', author='ajacker', createTime=Sun Oct 13 18:22:18 CST 2019, views=9999}
+   Blog{id=2, title='Spring笔记', author='ajacker', createTime=Sun Oct 13 18:22:18 CST 2019, views=8888}
+   Blog{id=3, title='mybatis笔记', author='ajacker', createTime=Sun Oct 13 18:22:18 CST 2019, views=9999}
+   ```
+
+   可以看到`mybatis`遍历了list集合并为我们拼接了sql语句：
+
+   ```mysql
+   select * from blog WHERE ( id = 1 or id = 2 or id = 3 ) 
+   ```
+

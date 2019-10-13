@@ -49,4 +49,12 @@ public interface IBlogDao {
      * @param id     不可为null
      */
     void updateBlog(@Param("title") String title, @Param("author") String author, @Param("id") String id);
+
+    /**
+     * 查询指定id的所有博客
+     *
+     * @param ids 一个list存要查询的id
+     * @return 查询结果
+     */
+    List<Blog> queryBlogForeach(@Param("ids") List<Integer> ids);
 }

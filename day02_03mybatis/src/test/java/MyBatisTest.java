@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -81,5 +82,13 @@ public class MyBatisTest {
     public void testUpdateBlog() throws Exception {
         IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
         blogDao.updateBlog("哒哒哒博客", null, "55a0e0cf2b95431db576ac77dd00cc93");
+    }
+
+    @Test
+    public void testQueryBlogForeach() throws Exception {
+        IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
+        List<Integer> ids = Arrays.asList(1, 2, 3);
+        List<Blog> blogs = blogDao.queryBlogForeach(ids);
+        blogs.forEach(System.out::println);
     }
 }
