@@ -1636,3 +1636,116 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
 - 通过 `collection`标签指定集合类型
 - `column`属性可以同于传递指定列给子查询作为参数
 - 在`collection`标签内用`result`指定子类型的映射关系
+
+## 12、动态SQL
+
+**动态SQL**：根据不同的条件生成不同的SQL语句
+
+动态 SQL 元素和 JSTL 或基于类似 XML 的文本处理器相似。在 MyBatis 之前的版本中，有很多元素需要花时间了解。MyBatis 3 大大精简了元素种类，现在只需学习原来一半的元素便可。MyBatis 采用功能强大的基于 OGNL 的表达式来淘汰其它大部分元素。
+
+- if
+- choose (when, otherwise)
+- trim (where, set)
+- foreach
+
+### 12.1、搭建环境
+
+1. 创建blog表
+
+   ```mysql
+   create table blog
+   (
+   	id varchar(50) not null comment '博客id',
+   	title varchar(100) not null comment '博客标题',
+   	author varchar(30) null comment '博客作者',
+   	create_time datetime not null comment '发布时间',
+   	views int default 0 not null comment '访问量'
+   );
+   ```
+
+2. 编写Blog实体类
+
+   ```java
+   public class Blog {
+       private String id;
+       private String title;
+       private String author;
+       private Date createTime;
+       private int views;
+   	//省略getter setter toString
+   }
+   ```
+
+3. 创建配置文件，mapper文件等
+
+### 12.2、if
+
+1. 添加条件查询的接口方法
+
+   ```java
+   /**
+    * 查询博客
+    * 不提供条件则查询所有
+    * 若提供条件则按条件查询
+    * @param title 可为null
+    * @param author 可为null
+    * @return 查询结果
+    */
+   List<Blog> queryBlogIf(@Param("title") String title, @Param("author") String author);
+   ```
+
+2. 在mapper中添加内容
+
+   ```xml
+   <select id="queryBlogIf" resultType="blog">
+       select * from blog where true
+       <if test="title != null">
+           and title = #{title}
+       </if>
+       <if test="author != null">
+           and author = #{author}
+       </if>
+   </select>
+   ```
+
+3. 编写测试方法
+
+   ```java
+   @Test
+   public void testQueryBlog() throws Exception {
+       IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
+       List<Blog> blogs = blogDao.queryBlogIf("啦啦啦博客", null);
+       blogs.forEach(System.out::println);
+   }
+   ```
+
+4. 观察结果
+
+   - 当传入两个null参数时，可以看到log信息为
+
+     ```java
+     [main] DEBUG acker.dao.IBlogDao.queryBlogIf  - ==>  Preparing: select * from blog where true 
+     [main] DEBUG acker.dao.IBlogDao.queryBlogIf  - ==> Parameters: 
+     [main] DEBUG acker.dao.IBlogDao.queryBlogIf  - <==      Total: 3
+     ```
+
+     可以看到`mybatis`为我们准备的sql语句为
+
+     ```mysql
+     select * from blog where true 
+     ```
+
+   - 当传入第一个参数，第二个参数为null时候，sql语句为
+
+     ```mysql
+     select * from blog where true and title = ? 
+     ```
+
+   - 当两个参数都传入非空值的时候，sql语句为
+
+     ```mysql
+     select * from blog where true and title = ? and author = ? 
+     ```
+
+     
+
