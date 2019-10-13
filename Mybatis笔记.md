@@ -1297,7 +1297,7 @@ public interface IUserDao {
 </selectKey>
 ```
 
-## 10、多对一处理
+## 10、多对一处理（day02_01mybatis）
 
 ### 10.1、测试环境搭建
 
@@ -1532,3 +1532,107 @@ Student{id=3, name='小绿', teacher=Teacher{id=3, name='秦老师'}}
 Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
 ```
 
+## 11、一对多处理（day02_02mybatis）
+
+### 11.1、测试环境搭建
+
+我们把上个例子中的实体类属性稍作修改，使得一个教师关联了多个学生
+
+ ```java
+   /**
+    * @author ajacker
+    * 学生实体类
+    */
+   public class Student {
+       private int id;
+       private String name;
+       private int tid;
+   	/**
+   	 * 省略getter setter toString
+   	 */
+   }
+ ```
+
+   ```java
+   /**
+    * @author ajacker
+    * 老师实体类
+    */
+   public class Teacher {
+       private int id;
+       private String name;
+       private List<Student> students;
+   	/**
+   	 * 省略getter setter toString
+   	 */
+   }
+   ```
+
+### 11.2、按照嵌套查询处理
+
+1. 创建接口方法
+
+   ```java
+   /**
+    * 获得指定老师和他的学生
+    * @return
+    */
+   Teacher getTeacher(int tid);
+   ```
+
+2. 在mapper中添加标签
+
+   ```xml
+   <select id="getTeacher" resultMap="TeacherStudent">
+       select * from teacher where id=#{tid}
+   </select>
+   
+   <resultMap id="TeacherStudent" type="teacher">
+       <result property="id" column="id"/>
+       <result property="name" column="name"/>
+       <collection property="students" ofType="student" column="{tid=id}" select="getStudentsByTeacherId"/>
+   </resultMap>
+   
+   <select id="getStudentsByTeacherId" resultType="student">
+       select * from student where tid=#{tid}
+   </select>
+   ```
+
+   - 可以看到：
+     - 对于集合来说，我们需要通过`ofType`属性来指名集合的泛型
+     - `column`属性可以同于传递指定列给子查询作为参数
+
+3. 运行结果为：
+
+   ```java
+   Teacher{id=2, name='王老师', students={
+   Student{id=1, name='小王', tid=2}
+   Student{id=2, name='小名', tid=2}
+   Student{id=5, name='小紫', tid=2}
+   }
+   ```
+
+### 10.3、按照联表查询处理
+
+我们将上个例子的标签进行修改：
+
+```xml
+<select id="getTeacher" resultMap="TeacherStudent">
+    select s.id sid,s.name sname,t.id tid,t.name tname
+    from teacher t,student s
+    where t.id=s.tid and tid=#{tid}
+</select>
+
+<resultMap id="TeacherStudent" type="teacher">
+    <result property="id" column="tid"/>
+    <result property="name" column="tname"/>
+    <collection property="students" ofType="student">
+        <result property="id" column="sid"/>
+        <result property="name" column="sname"/>
+    </collection>
+</resultMap>
+```
+
+- 通过 `collection`标签指定集合类型
+- `column`属性可以同于传递指定列给子查询作为参数
+- 在`collection`标签内用`result`指定子类型的映射关系

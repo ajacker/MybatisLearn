@@ -7,9 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="day01_03mybatis" />
-        <module name="day01_01mybatis" />
-        <module name="day02_01mybatis" />
+        <module name="day02_02mybatis" />
         <module name="day01_02mybatis" />
+        <module name="day02_01mybatis" />
+        <module name="day01_01mybatis" />
       </profile>
     </annotationProcessing>
   </component>

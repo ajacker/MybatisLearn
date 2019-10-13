@@ -13,6 +13,7 @@
         <module>day01_02mybatis</module>
         <module>day01_03mybatis</module>
         <module>day02_01mybatis</module>
+        <module>day02_02mybatis</module>
     </modules>
     <dependencies>
         <dependency>
