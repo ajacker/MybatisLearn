@@ -8,16 +8,20 @@
         values (#{id}, #{title}, #{author}, #{createTime}, #{views})
     </insert>
 
+    <sql id="if-title-author">
+        <if test="title != null">
+            and title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </sql>
+
 
     <select id="queryBlogIf" resultType="blog">
         select * from blog
         <where>
-            <if test="title != null">
-                and title = #{title}
-            </if>
-            <if test="author != null">
-                and author = #{author}
-            </if>
+            <include refid="if-title-author"/>
         </where>
     </select>
 
@@ -41,12 +45,7 @@
     <update id="updateBlog">
         update blog
         <set>
-            <if test="title != null">
-                title=#{title},
-            </if>
-            <if test="author != null">
-                author=#{author}
-            </if>
+            <include refid="if-title-author"/>
         </set>
         where id = #{id}
     </update>
