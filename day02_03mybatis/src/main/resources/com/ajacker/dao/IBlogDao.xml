@@ -8,28 +8,46 @@
         values (#{id}, #{title}, #{author}, #{createTime}, #{views})
     </insert>
 
+
     <select id="queryBlogIf" resultType="blog">
-        select * from blog where true
-        <if test="title != null">
-            and title = #{title}
-        </if>
-        <if test="author != null">
-            and author = #{author}
-        </if>
+        select * from blog
+        <where>
+            <if test="title != null">
+                and title = #{title}
+            </if>
+            <if test="author != null">
+                and author = #{author}
+            </if>
+        </where>
     </select>
 
     <select id="queryBlogChoose" resultType="blog">
-        select * from blog where true
-        <choose>
-            <when test="title != null">
-                and title = #{title}
-            </when>
-            <when test="author != null">
-                and author = #{author}
-            </when>
-            <otherwise>
-                and views = #{views}
-            </otherwise>
-        </choose>
+        select * from blog
+        <where>
+            <choose>
+                <when test="title != null">
+                    and title = #{title}
+                </when>
+                <when test="author != null">
+                    and author = #{author}
+                </when>
+                <otherwise>
+                    and views = #{views}
+                </otherwise>
+            </choose>
+        </where>
     </select>
+
+    <update id="updateBlog">
+        update blog
+        <set>
+            <if test="title != null">
+                title=#{title},
+            </if>
+            <if test="author != null">
+                author=#{author}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 </mapper>

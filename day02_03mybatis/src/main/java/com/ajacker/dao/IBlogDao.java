@@ -40,4 +40,13 @@ public interface IBlogDao {
      * @return 查询结果
      */
     List<Blog> queryBlogChoose(@Param("title") String title, @Param("author") String author, @Param("views") int views);
+
+    /**
+     * 更新博客，title和author为可选
+     *
+     * @param title  可为null
+     * @param author 可为null
+     * @param id     不可为null
+     */
+    void updateBlog(@Param("title") String title, @Param("author") String author, @Param("id") String id);
 }

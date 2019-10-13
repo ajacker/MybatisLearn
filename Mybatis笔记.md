@@ -1821,5 +1821,91 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
 
 ### 12.4、trim（where, set）
 
+之前我们写条件语句的时候都在最前面加了一个`where true`，这是为了保证每一个条件都能被正常拼接，`where`和`set`标签则为我们解决了这个问题
 
+-  *where* 元素**只会在至少有一个子元素的条件返回 SQL 子句的情况下才去插入“WHERE”子句**。而且，**若语句的开头为“AND”或“OR”，*where* 元素也会将它们去除**。 
+-  *set* 元素会**动态前置 SET 关键字，同时也会删掉无关的逗号**，因为用了条件语句之后很可能就会在生成的 SQL 语句的后面留下这些逗号。 
 
+例如我们可以将之前的if例子中的mapper内容修改为：
+
+```xml
+<select id="queryBlogIf" resultType="blog">
+    select * from blog
+    <where>
+        <if test="title != null">
+            and title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </where>
+</select>
+```
+
+同理，可以把choose例子中的mapper修改为:
+
+```xml
+<select id="queryBlogChoose" resultType="blog">
+    select * from blog
+    <where>
+        <choose>
+            <when test="title != null">
+                and title = #{title}
+            </when>
+            <when test="author != null">
+                and author = #{author}
+            </when>
+            <otherwise>
+                and views = #{views}
+            </otherwise>
+        </choose>
+    </where>
+</select>
+```
+
+**一个set的例子**
+
+```xml
+<update id="updateBlog">
+    update blog
+    <set>
+        <if test="title != null">
+            title=#{title},
+        </if>
+        <if test="author != null">
+            author=#{author}
+        </if>
+    </set>
+    where id = #{id}
+</update>
+```
+
+**trim**的介绍：
+
+- `prefix`：表示在trim标签内sql语句加上前缀xxx
+
+- `prefixOverrides`：表示去除最后一个后缀xxx
+
+- `suffix`：表示在trim标签内sql语句加上后缀xxx
+
+- `suffixOverrides`：表示去除最后一个后缀xxx
+
+所以我们可以知道：
+
+- `where`标签等价于
+
+  ```xml
+  <trim prefix="WHERE" prefixOverrides="AND |OR ">
+    ...
+  </trim>
+  ```
+
+- `set`标签等价于
+
+  ```xml
+  <trim prefix="SET" suffixOverrides=",">
+    ...
+  </trim>
+  ```
+
+  

@@ -76,4 +76,10 @@ public class MyBatisTest {
         List<Blog> blogs = blogDao.queryBlogChoose("啦啦啦博客", "ajacker", 9999);
         blogs.forEach(System.out::println);
     }
+
+    @Test
+    public void testUpdateBlog() throws Exception {
+        IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
+        blogDao.updateBlog("哒哒哒博客", null, "55a0e0cf2b95431db576ac77dd00cc93");
+    }
 }
