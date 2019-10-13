@@ -1297,3 +1297,238 @@ public interface IUserDao {
 </selectKey>
 ```
 
+## 10、多对一处理
+
+### 10.1、测试环境搭建
+
+1. 创建老师、学生实体类
+
+   ```java
+   /**
+    * @author ajacker
+    * 学生实体类
+    */
+   public class Student {
+       private int id;
+       private String name;
+       private Teacher teacher;
+   	/**
+   	 * 省略getter setter toString
+   	 */
+   }
+   ```
+
+   ```java
+   /**
+    * @author ajacker
+    * 老师实体类
+    */
+   public class Teacher {
+       private int id;
+       private String name;
+   	/**
+   	 * 省略getter setter toString
+   	 */
+   }
+   ```
+
+2. 创建对应的`IStudentDao.java`、`ITeacherdao.java`接口
+
+3. 配置核心配置文件：
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE configuration
+           PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-config.dtd">
+   <!--配置-->
+   <configuration>
+       <!--属性-->
+       <properties resource="jdbcConfig.properties"/>
+       <!--设置-->
+       <settings>
+           <setting name="logImpl" value="LOG4J"/>
+       </settings>
+       <!--类型命名-->
+       <typeAliases>
+           <typeAlias type="com.ajacker.domain.Student" alias="student"/>
+           <typeAlias type="com.ajacker.domain.Teacher" alias="teacher"/>
+       </typeAliases>
+       <!--配置环境-->
+       <environments default="mysql">
+           <!--配置mysql环境-->
+           <environment id="mysql">
+               <!--事务管理器-->
+               <transactionManager type="jdbc"/>
+               <!--数据源-->
+               <dataSource type="pooled">
+                   <property name="driver" value="${jdbc.driver}"/>
+                   <property name="url" value="${jdbc.url}"/>
+                   <property name="username" value="${jdbc.username}"/>
+                   <property name="password" value="${jdbc.password}"/>
+               </dataSource>
+           </environment>
+       </environments>
+       <!--映射器-->
+       <mappers>
+           <mapper class="com.ajacker.dao.IStudentDao"/>
+           <mapper class="com.ajacker.dao.ITeacherDao"/>
+       </mappers>
+   </configuration>
+   ```
+
+4. 添加`Mapper`文件：`IStudentDao.xml`、`ITeacherDao.xml`
+
+5. 创建数据库表和外键
+
+   **Student表**
+
+   ```mysql
+   create table student
+   (
+   	id int auto_increment,
+   	name varchar(45) null,
+   	tid int not null,
+   	primary key (id, tid),
+   	constraint fktid
+   		foreign key (tid) references teacher (id)
+   );
+   
+   create index fktid_idx
+   	on student (tid);
+   ```
+
+   **Teacher表**
+
+   ```mysql
+   create table teacher
+   (
+   	id int auto_increment
+   		primary key,
+   	name varchar(45) null
+   );
+   ```
+
+### 10.2、按照嵌套查询处理
+
+我们有以下的查询需求，查询所有学生和他对应的老师实体，这时我们需要处理的字段不是简单的类型，我们需要对它进行新的处理。
+
+1. 创建接口方法：
+
+   ```java
+   /**
+    * 查询所有的学生和对应的老师
+    * @return
+    */
+   List<Student> getStudent();
+   ```
+
+2. 在mapper中添加配置：
+
+   ```xml
+   <select id="getStudent" resultMap="StudentTeacher">
+       select * from student
+   </select>
+   
+   <resultMap id="StudentTeacher" type="student">
+       <result property="id" column="id"/>
+       <result property="name" column="name"/>
+       <!--单独处理复杂属性-->
+       <association property="teacher" column="tid" javaType="teacher" select="getTeacher">
+       </association>
+   </resultMap>
+   
+   <select id="getTeacher" resultType="teacher">
+       select * from teacher where id=#{tid}
+   </select>
+   ```
+
+这时我们相当于以`Student`表中查询出来的`tid`列去调用`getTeacher`，再由`getTeacher`返回实体类封装到`Student`的`teacher`字段，这是一个子查询。
+
+3. 我们来编写测试类运行一下：
+
+   ```java
+   public class MyBatisTest {
+       private InputStream in;
+       private SqlSession sqlSession;
+   
+       @Before
+       public void init() throws IOException {
+           //1.读取配置文件
+           in = Resources.getResourceAsStream("SqlMapConfig.xml");
+           //2.创建SqlSessionFactory工厂
+           SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+           SqlSessionFactory factory = builder.build(in);
+           //3.使用工厂生产SqlSession对象
+           sqlSession = factory.openSession();
+       }
+   
+       @After
+       public void destroy() throws IOException {
+           //提交事务
+           sqlSession.commit();
+           //释放资源
+           sqlSession.close();
+           in.close();
+       }
+       
+       /**
+        * 测试查询所有
+        */
+       @Test
+       public void testFindAll() throws Exception {
+           IStudentDao studentDao = sqlSession.getMapper(IStudentDao.class);
+           List<Student> students = studentDao.getStudent();
+           students.forEach(System.out::println);
+       }
+   
+   }
+   ```
+
+   运行结果为：
+
+   ```java
+   Student{id=1, name='小王', teacher=Teacher{id=2, name='王老师'}}
+   Student{id=2, name='小名', teacher=Teacher{id=2, name='王老师'}}
+   Student{id=3, name='小绿', teacher=Teacher{id=3, name='秦老师'}}
+   Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
+   Student{id=5, name='小紫', teacher=Teacher{id=2, name='王老师'}}
+   ```
+
+### 10.3、按照联表查询处理
+
+我们将上个例子的`ResultMap`和查询方法进行修改:
+
+```xml
+<select id="getStudent" resultMap="StudentTeacher">
+    select s.id sid,s.name sname,t.id tid,t.name tname
+    from student s,teacher t
+    where s.tid=t.id
+</select>
+
+<resultMap id="StudentTeacher" type="student">
+    <result property="id" column="sid"/>
+    <result property="name" column="sname"/>
+    <!--单独处理复杂属性-->
+    <association property="teacher" column="tid" javaType="teacher">
+        <result property="name" column="tname"/>
+        <result property="id" column="tid"/>
+    </association>
+</resultMap>
+```
+
+可以看到：
+
+- 我们使用了sql的联表查询
+- 我们利用`ReusltMap`，将查询返回的列名多级映射到了`teacher`的字段
+
+此时我们得到了一样的结果：
+
+```java
+Student{id=1, name='小王', teacher=Teacher{id=2, name='王老师'}}
+Student{id=2, name='小名', teacher=Teacher{id=2, name='王老师'}}
+Student{id=5, name='小紫', teacher=Teacher{id=2, name='王老师'}}
+Student{id=3, name='小绿', teacher=Teacher{id=3, name='秦老师'}}
+Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
+```
+

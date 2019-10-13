@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--配置-->
+<configuration>
+    <!--属性-->
+    <properties resource="jdbcConfig.properties">
+
+    </properties>
+    <!--设置-->
+    <settings>
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    <!--类型命名-->
+    <typeAliases>
+        <typeAlias type="com.ajacker.domain.Student" alias="student"/>
+        <typeAlias type="com.ajacker.domain.Teacher" alias="teacher"/>
+    </typeAliases>
+    <!--类型处理器-->
+    <!--<typeHandlers></typeHandlers>-->
+    <!--对象工厂-->
+    <!--<objectFactory type=""/>-->
+    <!--插件-->
+    <!--<plugins>-->
+    <!--<plugin interceptor=""></plugin>-->
+    <!--</plugins>-->
+    <!--配置环境-->
+    <environments default="mysql">
+        <!--配置mysql环境-->
+        <environment id="mysql">
+            <!--事务管理器-->
+            <transactionManager type="jdbc"/>
+            <!--数据源-->
+            <dataSource type="pooled">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--数据库厂商标识-->
+    <!--<databaseIdProvider type=""/>-->
+    <!--映射器-->
+    <mappers>
+        <mapper class="com.ajacker.dao.IStudentDao"/>
+        <mapper class="com.ajacker.dao.ITeacherDao"/>
+    </mappers>
+</configuration>
