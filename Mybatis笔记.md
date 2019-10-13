@@ -1747,5 +1747,79 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
      select * from blog where true and title = ? and author = ? 
      ```
 
-     
+### 12.3、choose（when，otherwise）
+
+1. 添加接口方法
+
+   ```java
+   /**
+    * 查询博客
+    * 若提供title或author则忽略views条件
+    * 否则按照views查询
+    * @param title 可为null
+    * @param author 可为null
+    * @param views 不可为null
+    * @return 查询结果
+    */
+       List<Blog> queryBlogChoose(@Param("title") String title, @Param("author") String author,@Param("views") int views);
+   ```
+
+2. 在mapper中添加
+
+   ```xml
+   <select id="queryBlogChoose" resultType="blog">
+       select * from blog where true
+       <choose>
+           <when test="title != null">
+               and title = #{title}
+           </when>
+           <when test="author != null">
+               and author = #{author}
+           </when>
+           <otherwise>
+               and views = #{views}
+           </otherwise>
+       </choose>
+   </select>
+   ```
+
+3. 编写测试方法
+
+   ```java
+   @Test
+   public void testQueryBlog() throws Exception {
+       IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
+       List<Blog> blogs = blogDao.queryBlogChoose(null, null,9999);
+       blogs.forEach(System.out::println);
+   }
+   ```
+
+4. 观察结果
+
+   - 当只传入views时：
+
+     ```mysql
+     select * from blog where true and views = ? 
+     ```
+
+   - 除了views之外再传入title或者author时：
+
+     ```mysql
+     select * from blog where true and author = ? 
+     select * from blog where true and title = ? 
+     ```
+
+     可以看到两者只要有其一就会忽略`otherwise`标签内的语句
+
+   - 除了views之外再传入title和author时：
+
+     ```mysql
+     select * from blog where true and author = ? 
+     ```
+
+     可以看到`when`标签**只选择一个**，如果遇到满足条件的不再往后判断
+
+### 12.4、trim（where, set）
+
+
 

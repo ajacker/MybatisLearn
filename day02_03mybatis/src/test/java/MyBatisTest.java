@@ -73,7 +73,7 @@ public class MyBatisTest {
     @Test
     public void testQueryBlog() throws Exception {
         IBlogDao blogDao = sqlSession.getMapper(IBlogDao.class);
-        List<Blog> blogs = blogDao.queryBlogIf("啦啦啦博客", "ajacker");
+        List<Blog> blogs = blogDao.queryBlogChoose("啦啦啦博客", "ajacker", 9999);
         blogs.forEach(System.out::println);
     }
 }

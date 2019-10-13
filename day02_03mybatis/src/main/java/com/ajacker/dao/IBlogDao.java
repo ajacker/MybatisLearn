@@ -27,4 +27,17 @@ public interface IBlogDao {
      * @return 查询结果
      */
     List<Blog> queryBlogIf(@Param("title") String title, @Param("author") String author);
+
+
+    /**
+     * 查询博客
+     * 若提供title或author则忽略views条件
+     * 否则按照views查询
+     *
+     * @param title  可为null
+     * @param author 可为null
+     * @param views  不可为null
+     * @return 查询结果
+     */
+    List<Blog> queryBlogChoose(@Param("title") String title, @Param("author") String author, @Param("views") int views);
 }
