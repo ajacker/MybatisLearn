@@ -1637,7 +1637,7 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
 - `column`属性可以同于传递指定列给子查询作为参数
 - 在`collection`标签内用`result`指定子类型的映射关系
 
-## 12、动态SQL
+## 12、动态SQL（day02_03mybatis）
 
 **动态SQL**：根据不同的条件生成不同的SQL语句
 
@@ -2031,3 +2031,308 @@ Student{id=4, name='小蓝', teacher=Teacher{id=3, name='秦老师'}}
    select * from blog WHERE ( id = 1 or id = 2 or id = 3 ) 
    ```
 
+## 13、缓存和延迟加载
+
+### 13.1、缓存概念
+
+**什么是缓存？**
+
+-  存在于内存中的临时数据 
+
+**为什么使用缓存？ **
+
+- 减少与数据库的交互次数，提高执行效率。 
+
+**什么样的数据能使用缓存，什么样的数据不能使用？**
+
+- 适用于缓存：
+  - 经常查询并且不经常改变的。
+  - 数据的正确与否对最终结果影响不大的
+- 不适用于缓存：
+  - 经常改变的数据。
+  - 数据的正确与否对最终结果影响很大的。如，商品库存，银行汇率，股市牌价。 
+
+**mybatis中的一级缓存和二级缓存**
+
+- 一级缓存：
+  它指的是mybatis中**SqlSession对象的缓存**。
+  当我们执行查询的时候，查询的结果会同时存入到SqlSession为我们提供的一块区域中。
+  该区域的**结构是一个Map**。当我们再次查询同样的数据，mybatis**会先去查询SqlSession中是否有**，有的话直接拿来用。
+  当SqlSession对象消失时，mybatis的一级缓存也就消失了。
+
+- 二级缓存：
+  它指的是**mybatis中SqlSessionFactory对象的缓存**。由同一个SqlSessionFactory对象创建的SqlSession共享其缓存。
+
+**二级缓存的使用步骤：**
+
+1. 让mybatis框架支持二级缓存（在SqlMapConfig.xml中配置）
+2. 让当前的映射文件支持二级缓存（在IUserDao.xml中配置）
+3. 让当前的操作支持二级缓存（在select标签中配置）
+
+### 13.2、一级缓存
+
+其实mybatis中默认就是一级缓存了（平时的测试类就是一级缓存存在SqlSession中）
+
+**一级缓存是SqlSession范围的缓存，当调用SqlSession的修改，添加，删除，commit()，close()等方法时，就会清空一级缓存。**
+
+### 13.3、二级缓存
+
+1.SqlMaoConfig.xml中
+
+```xml
+<settings>
+        <setting name="cacheEnabled" value="true"/>
+</settings>
+```
+
+2.在需要使用二级缓存的实体类的mapper中
+
+```xml
+ <!--开启user支持二级缓存-->
+    <cache/>
+
+ <!-- 根据id查询用户   注意属性useCache -->
+    <select id="findById" parameterType="INT" resultType="user" useCache="true">
+        select * from user where id = #{uid}
+    </select>
+```
+
+### 13.4、延迟加载
+
+**mybatis中的延迟加载**
+
+- 问题：在一对多中，当我们有一个用户，它有100个账户。
+  - 在查询用户的时候，要不要把关联的账户查出来？
+  - 在查询账户的时候，要不要把关联的用户查出来？
+- 答案：在查询用户时，用户下的账户信息是，什么时候使用，什么时候查询的。
+  - 在查询账户时，账户的所属用户信息应该是随着账户查询时一起查询出来的。
+
+**什么是延迟加载？**
+
+- 在真正使用数据时才发起查询，不用的时候不查询。按需加载（懒加载）
+
+**什么是立即加载？**
+
+- 不管用不用，只要一调用方法，马上发起查询
+
+**采用策略**
+
+- 一对多，多对多：通常情况下我们都是采用延迟加载。
+- 多对一，一对一：通常情况下我们都是采用立即加载。
+
+**如何开启？**
+
+```xml
+<settings>
+    <!-- 配置全局缓存-->
+    <setting name="lazyLoadingEnabled" value="true"/>
+    <setting name="aggressiveLazyLoading" value="true"/>
+</settings>
+```
+
+## 14、注解开发补充
+
+### 14.1、注解实现多对一(@One)
+
+```java
+public interface IAccountDao {
+
+    /**
+     * 查询所有账户，并且获取每个账户所属的用户信息
+     * @return
+     */
+    @Select("select * from account")
+    @Results(id="accountMap",value = {
+            @Result(id=true,column = "id",property = "id"),
+            @Result(column = "uid",property = "uid"),
+            @Result(column = "money",property = "money"),
+            //这个注解是引入主表        FetchType(加载时机)  EAGER(立即加载)
+            @Result(property = "user",column = "uid",one=@One(select="com.ajacker.dao.IUserDao.findById",fetchType= FetchType.EAGER))
+    })
+    List<Account> findAll();
+    
+   /**
+     * 根据用户id查询账户信息
+     * @param userId
+     * @return
+     */
+    @Select("select * from account where uid = #{userId}")
+    List<Account> findAccountByUid(Integer userId);
+
+}
+```
+
+`@One`注解将`colomn`的参数传递给指定方法，以返回的实体类装填该属性
+
+### 14.2、注解实现一对多(@Many)
+
+```java
+public interface IUserDao {
+
+    /**
+     * 查询所有用户
+     * @return
+     */
+    @Select("select * from user")
+    @Results(id="userMap",value={
+            @Result(id=true,column = "id",property = "userId"),
+            @Result(column = "username",property = "userName"),
+            @Result(column = "address",property = "userAddress"),
+            @Result(column = "sex",property = "userSex"),
+            @Result(column = "birthday",property = "userBirthday"),
+            @Result(property = "accounts",column = "id",
+                    many = @Many(select = "com.itheima.dao.IAccountDao.findAccountByUid",
+                                fetchType = FetchType.LAZY))
+    })
+    List<User> findAll();
+
+    /**
+     * 根据id查询用户
+     * @param userId
+     * @return
+     */
+    @Select("select * from user  where id=#{id} ")
+    @ResultMap("userMap")
+    User findById(Integer userId);
+
+}
+```
+
+ `@Many`注解将`colomn`的参数传递给指定方法，以返回的实体类集合装填该属性 
+
+### 14.3、注解开启二级缓存（@CacheNameSpace）
+
+哪个Dao接口需要就写在哪儿
+
+```java
+@CacheNamespace(blocking = true)
+```
+
+### 14.4、注解实现动态sql
+
+第一种：将xml配置文件居中的语句以`<script>`标签包裹写在注解内，例如：
+
+```java
+	@Select("<script>"
+			+ "SELECT "
+			+ "a.id as 'id',a.create_date as 'createDate',a.content as 'content',"
+			+ "a.parent_id as 'parentId',a.first_comment_id as 'firstCommentId',"
+			+ "b.id as 'fromUser.id',b.realname as 'fromUser.realname',b.avatar as 'fromUser.avatar',"
+			+ "c.id as 'toUser.id',c.realname as 'toUser.realname',c.avatar as 'toUser.avatar' "
+			+ "FROM t_demand_comment a "
+			+ "LEFT JOIN t_user b ON b.id = a.from_uid "
+			+ "LEFT JOIN t_user c ON c.id = a.to_uid "
+			+ "WHERE a.demand_id = #{demandId} "
+			+ "ORDER BY a.create_date ASC "
+			+ "<if test='startNo!=null and pageSize != null '>"
+			+ "LIMIT #{startNo},#{pageSize}"
+			+ "</if>"
+			+ "</script>")
+	public List<DemandComment> listDemandComment(@Param("demandId") Long demandId, @Param("startNo") Integer pageNo, @Param("pageSize") Integer pageSize);
+```
+
+第二种：使用`@SelectProvider`提供sql
+
+例如：
+
+- mapper：
+
+  ```java
+  public interface StudentMapper {
+  
+      @SelectProvider(type = StudentSqlProvider.class, method="select")
+      List<Student> findAll(Student student) throws Exception;
+      
+      @InsertProvider(type = StudentSqlProvider.class , method = "insertStudent" )
+      void insert(Student student) throws Exception;
+      
+      @DeleteProvider(type = StudentSqlProvider.class, method = "delete")
+      void delete(Student student) throws Exception;
+  
+      @UpdateProvider(type = StudentSqlProvider.class, method = "update")
+      void update(Student student) throws Exception;
+      
+  }
+  ```
+
+- Provider:
+
+  ```java
+  /**
+   * Created with IDEA
+   * author:bigStone
+   * Date:2019/5/2
+   **/
+  public class StudentSqlProvider {
+  
+      //插入
+      public String insertStudent(Student student) {
+          SQL sql = new SQL();
+          sql.INSERT_INTO("student");
+          if (student.getId() != null) {
+              sql.VALUES("id", "#{id}");
+          }
+          if (student.getUsername() != null) {
+              sql.VALUES("username", "#{username}");
+          }
+          if (student.getPassword() != null) {
+              sql.VALUES("password", "#{password}");
+          }
+          if (student.getAddr() != null) {
+              sql.VALUES("addr", "#{addr}");
+          }
+          return sql.toString();
+      }
+  
+      //查询
+      public String select(Student student) {
+          return new SQL() {{
+              SELECT("id, username, password, addr");
+              FROM("student");
+              if (student != null) {
+                  if (student.getId() != null) {
+                      WHERE("id = #{id}");
+                  }
+                  if (student.getUsername() != null) {
+                      WHERE("username like '%' || #{username} || '%'");
+                  }
+                  if (student.getPassword() != null) {
+                      WHERE("password = #{password}");
+                  }
+                  if (student.getAddr() != null) {
+                      WHERE("addr like '%' || #{addr} || '%' ");
+                  }
+              }
+          }}.toString();
+      }
+  
+      //删除
+      public String delete(Student student) {
+          return new SQL() {{
+              DELETE_FROM("student");
+              if (student.getId() != null) {
+                  WHERE("id = #{id}");
+              }
+          }}.toString();
+      }
+  
+      //更新
+      public String update(Student student) {
+          return new SQL() {{
+              UPDATE("student");
+              if (student.getUsername() != null) {
+                  SET("username = #{username}");
+              }
+              if (student.getPassword() != null) {
+                  SET("password = #{password}");
+              }
+              if (student.getAddr() != null) {
+                  SET("addr = #{addr}");
+              }
+              WHERE("id = #{id}");
+          }}.toString();
+      }
+  }
+  ```
+
+  
